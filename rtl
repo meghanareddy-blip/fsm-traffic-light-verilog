@@ -1,0 +1,54 @@
+module traffic_light_controller (
+    input  wire       clk,            // System Clock Signal
+    input  wire       rst_n,          // Active-Low Reset
+    output reg  [2:0] highway_light,  // [2]=Red, [1]=Yellow, [0]=Green
+    output reg  [2:0] side_light      // [2]=Red, [1]=Yellow, [0]=Green
+);
+
+    // State Encoding
+    parameter S0 = 2'b00; // Highway GREEN,  Side RED
+    parameter S1 = 2'b01; // Highway YELLOW, Side RED
+    parameter S2 = 2'b10; // Highway RED,    Side GREEN
+    parameter S3 = 2'b11; // Highway RED,    Side YELLOW
+
+    reg [1:0] state, next_state;
+    reg [3:0] timer;
+
+    // 1. Sequential Logic: State and Timer Registers
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            state <= S0;
+            timer <= 4'd0;
+        end else begin
+            if (timer == 4'd10) begin
+                state <= next_state;
+                timer <= 4'd0;
+            end else begin
+                timer <= timer + 4'd1;
+            end
+        end
+    end
+
+    // 2. Combinational Logic: Next State Logic
+    always @(*) begin
+        case (state)
+            S0: next_state = S1;
+            S1: next_state = S2;
+            S2: next_state = S3;
+            S3: next_state = S0;
+            default: next_state = S0;
+        endcase
+    end
+
+    // 3. Combinational Logic: Output Light Decoder
+    always @(*) begin
+        case (state)
+            S0: begin highway_light = 3'b001; side_light = 3'b100; end
+            S1: begin highway_light = 3'b010; side_light = 3'b100; end
+            S2: begin highway_light = 3'b100; side_light = 3'b001; end
+            S3: begin highway_light = 3'b100; side_light = 3'b010; end
+            default: begin highway_light = 3'b100; side_light = 3'b100; end
+        endcase
+    end
+
+endmodule
