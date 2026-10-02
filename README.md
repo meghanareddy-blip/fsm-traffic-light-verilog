@@ -30,4 +30,4 @@ This project models an automated traffic light controller for an intersection be
 * **Simulator:** Icarus Verilog (`iverilog`)
 * **Waveform Viewer:** EPWave / GTKWave
 * **Development Platform:** EDA Playground / GitHub Web
-*
+
